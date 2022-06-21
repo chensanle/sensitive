@@ -192,12 +192,12 @@ func (tree *Trie) dfsGreedy(runes []rune, parent *Node, curl int, wildcard rune,
 	// 先看有没有*
 	if current1, found1 := parent.Children[wildcard]; found1 {
 
-		if is2 := tree.dfsGreedy(runes, current1, curl+1, wildcard, str+string(wildcard), patter, preMatched); is2 {
+		if is2 := tree.dfsGreedy(runes, current1, curl+1, wildcard, str+string(runes[curl]), patter, preMatched); is2 {
 			return true
 		}
 
 		if current2, found2 := current1.Children[runes[curl]]; found2 {
-			if is3 := tree.dfsGreedy(runes, current2, curl+1, wildcard, str+string(wildcard)+string(runes[curl]), patter, preMatched); is3 {
+			if is3 := tree.dfsGreedy(runes, current2, curl+1, wildcard, str+string(runes[curl]), patter, preMatched); is3 {
 				return true
 			}
 		}
