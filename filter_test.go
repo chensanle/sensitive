@@ -194,6 +194,8 @@ func TestReplaceWithWild(t *testing.T) {
 	filter.AddWord("东西")
 	filter.AddWord("个东")
 	filter.AddWord("卖*贼")
+	filter.AddWord("张口")
+	filter.AddWord("张口就来")
 
 	testcases := []struct {
 		Text       string
@@ -209,6 +211,7 @@ func TestReplaceWithWild(t *testing.T) {
 		{"卖国贼", "***", []string{"卖*贼"}, "卖国贼"},
 		{"卖*贼", "***", []string{"卖*贼"}, "卖*贼"},
 		{"一个丑陋的卖*贼", "**丑陋的***", []string{"一个", "卖*贼"}, "一个丑陋的卖*贼"},
+		{"张口就来", "****", []string{"张口就来"}, "**就来"},
 	}
 
 	for _, tc := range testcases {

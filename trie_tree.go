@@ -156,9 +156,10 @@ func (tree *Trie) ValidateWithWildcard(text string, wildcard rune) (bool, string
 func (tree *Trie) ReplaceWithWildcard(text string, repl, wildcard rune) string {
 	runes := []rune(text)
 	for curl := 0; curl < len(runes); {
-		patter, parent := "", tree.Root
-		if tree.dfs(runes, parent, curl, wildcard, "", &patter) {
-			for i := 0; i < len([]rune(patter)); i++ {
+		prePatter, patter, parent := "", "", tree.Root
+		tree.dfsGreedy(runes, parent, curl, wildcard, "", &patter, &prePatter)
+		if len(prePatter) > 0 {
+			for i := 0; i < len([]rune(prePatter)); i++ {
 				runes[curl] = repl
 				curl++
 			}
@@ -167,6 +168,41 @@ func (tree *Trie) ReplaceWithWildcard(text string, repl, wildcard rune) string {
 		curl++
 	}
 	return string(runes)
+}
+
+func (tree *Trie) dfsGreedy(runes []rune, parent *Node, curl int, wildcard rune, str string, patter *string, preMatched *string) bool {
+	if parent == nil {
+		return false
+	}
+	if parent.IsPathEnd() {
+		*patter = str
+		*preMatched = str
+	}
+	if curl >= len(runes) {
+		return false
+	}
+
+	// 匹配到了
+	if current, found := parent.Children[runes[curl]]; found {
+		if is1 := tree.dfsGreedy(runes, current, curl+1, wildcard, str+string(runes[curl]), patter, preMatched); is1 {
+			return true
+		}
+	}
+
+	// 先看有没有*
+	if current1, found1 := parent.Children[wildcard]; found1 {
+
+		if is2 := tree.dfsGreedy(runes, current1, curl+1, wildcard, str+string(wildcard), patter, preMatched); is2 {
+			return true
+		}
+
+		if current2, found2 := current1.Children[runes[curl]]; found2 {
+			if is3 := tree.dfsGreedy(runes, current2, curl+1, wildcard, str+string(wildcard)+string(runes[curl]), patter, preMatched); is3 {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func (tree *Trie) dfs(runes []rune, parent *Node, curl int, wildcard rune, str string, patter *string) bool {
